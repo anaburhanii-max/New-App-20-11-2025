@@ -1,8 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/auth_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/firestore_service.dart';
 import '../../providers/theme_provider.dart';
 
@@ -11,9 +12,8 @@ class MureedDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
     final firestoreService = FirestoreService();
-    final mureedId = authProvider.user!.id;
+    final mureedId = FirebaseAuth.instance.currentUser!.uid;
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
@@ -28,7 +28,7 @@ class MureedDashboard extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              context.read<AuthProvider>().signOut();
+              FirebaseAuth.instance.signOut();
               context.go('/login');
             },
           ),

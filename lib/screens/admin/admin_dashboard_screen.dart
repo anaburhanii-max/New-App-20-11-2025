@@ -1,8 +1,8 @@
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myapp/models/silsilah.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/services/silsilah_service.dart';
 import 'package:myapp/services/user_service.dart';
 import 'package:myapp/screens/admin/user_list.dart';
@@ -22,8 +22,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final adminId = authProvider.user!.id;
+    final adminId = FirebaseAuth.instance.currentUser!.uid;
 
     return Scaffold(
       appBar: AppBar(

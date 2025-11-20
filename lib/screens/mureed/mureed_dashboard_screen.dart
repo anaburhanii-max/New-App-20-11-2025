@@ -1,7 +1,7 @@
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/services/user_service.dart';
 
 class MureedDashboardScreen extends StatefulWidget {
@@ -13,13 +13,21 @@ class MureedDashboardScreen extends StatefulWidget {
 
 class _MureedDashboardScreenState extends State<MureedDashboardScreen> {
   final UserService _userService = UserService();
+  late Future<AppUser?> _mureedFuture;
   late Future<AppUser?> _murshidFuture;
 
   @override
   void initState() {
     super.initState();
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    _murshidFuture = _userService.getUser(authProvider.user!.murshidId!);
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    _mureedFuture = _userService.getUser(userId);
+    _mureedFuture.then((mureed) {
+      if (mureed != null && mureed.murshidId != null) {
+        setState(() {
+          _murshidFuture = _userService.getUser(mureed.murshidId!);
+        });
+      }
+    });
   }
 
   @override

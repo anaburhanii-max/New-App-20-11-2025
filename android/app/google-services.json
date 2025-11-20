@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "236320031118",
+    "project_id": "alburhaniya-bda8c",
+    "storage_bucket": "alburhaniya-bda8c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:236320031118:android:2efb3dc4020a9e1c83a4df",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJQJqtaKETrOABCOXhIUbHCT5ajOA_QM4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

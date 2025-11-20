@@ -1,8 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/services/user_service.dart';
 
 class MureedSignupScreen extends StatefulWidget {
@@ -131,16 +131,33 @@ class _MureedSignupScreenState extends State<MureedSignupScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      final authProvider = context.read<AuthProvider>();
                       final navigator = GoRouter.of(context);
-                      await authProvider.signUpMureed(
-                        _nameController.text,
-                        _emailController.text,
-                        _mobileController.text,
-                        _passwordController.text,
-                        _selectedMurshid!,
-                      );
-                      navigator.go('/waiting_for_approval');
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
+                      try {
+                        final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                          email: _emailController.text,
+                          password: _passwordController.text,
+                        );
+                        final user = userCredential.user;
+                        if (user != null) {
+                          final newUser = AppUser(
+                            id: user.uid,
+                            name: _nameController.text,
+                            email: _emailController.text,
+                            phone: _mobileController.text,
+                            role: UserRole.mureed,
+                            murshidId: _selectedMurshid,
+                          );
+                          await _userService.createUser(newUser);
+                          navigator.go('/waiting_for_approval');
+                        }
+                      } on FirebaseAuthException catch (e) {
+                        scaffoldMessenger.showSnackBar(
+                          SnackBar(
+                            content: Text(e.message ?? 'Signup failed'),
+                          ),
+                        );
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(

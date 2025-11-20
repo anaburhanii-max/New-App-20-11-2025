@@ -1,7 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:myapp/providers/auth_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:myapp/models/user.dart';
+import 'package:myapp/services/user_service.dart';
 
 class MurshidSignupScreen extends StatefulWidget {
   const MurshidSignupScreen({super.key});
@@ -17,17 +19,37 @@ class _MurshidSignupScreenState extends State<MurshidSignupScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  final _userService = UserService();
+
   void _submit() async {
     if (_formKey.currentState!.validate()) {
-      final authProvider = context.read<AuthProvider>();
-      await authProvider.signUpMurshid(
-        _nameController.text,
-        _emailController.text,
-        _phoneController.text,
-        _passwordController.text,
-      );
-      if (mounted) {
-        context.go('/waiting_for_approval');
+      try {
+        final navigator = GoRouter.of(context);
+        final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+        final user = userCredential.user;
+        if (user != null) {
+          final newUser = AppUser(
+            id: user.uid,
+            name: _nameController.text,
+            email: _emailController.text,
+            phone: _phoneController.text,
+            role: UserRole.murshid,
+            isApproved: false,
+          );
+          await _userService.createUser(newUser);
+          if (!mounted) return;
+          navigator.go('/waiting_for_approval');
+        }
+      } on FirebaseAuthException catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? 'Signup failed'),
+          ),
+        );
       }
     }
   }
